@@ -8,6 +8,7 @@ Zombie Money
 
 - Live app: https://chenfangc.github.io/zombie-money/
 - GitHub repo: https://github.com/CHENFANGC/zombie-money
+- Demo video file: `demo-assets/final/zombie-money-demo.mp4`
 - X post draft: `docs/x-post-draft.md`
 - Demo script: `docs/demo-script.md`
 - Project description: `docs/project-description.md`
