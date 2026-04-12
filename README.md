@@ -2,6 +2,9 @@
 
 Zombie Money is a mobile-first DeFi UX prototype for the LI.FI DeFi Mullet Hackathon.
 
+Live app: [https://chenfangc.github.io/zombie-money/](https://chenfangc.github.io/zombie-money/)
+Repo: [https://github.com/CHENFANGC/zombie-money](https://github.com/CHENFANGC/zombie-money)
+
 Instead of opening with APY tables, vault lists, or bridge jargon, it starts with a simpler truth:
 
 **Your money is sleeping. Wake it up.**

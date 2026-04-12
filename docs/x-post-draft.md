@@ -15,10 +15,10 @@ Built with:
 - a narrative 3-screen UX designed for the DeFi UX Challenge
 
 Demo:
-[add demo link]
+https://chenfangc.github.io/zombie-money/
 
 App / repo:
-[add app link]
-[add GitHub repo link]
+https://chenfangc.github.io/zombie-money/
+https://github.com/CHENFANGC/zombie-money
 
 #DeFiMullet #LIFI #DeFiUX #BuildOnLI.FI

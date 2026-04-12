@@ -4,6 +4,9 @@
 
 Zombie Money is a mobile-first consumer prototype that helps users “wake up” idle stablecoins instead of leaving them parked in their wallet.
 
+Live app: https://chenfangc.github.io/zombie-money/
+Code: https://github.com/CHENFANGC/zombie-money
+
 The key insight is emotional, not technical:
 
 Most DeFi earn products make users understand APY, vaults, and protocols before they understand why they should care.

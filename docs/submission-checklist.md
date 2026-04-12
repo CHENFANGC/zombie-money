@@ -13,6 +13,8 @@
 - [ ] Finalize the X post
 - [ ] Add the demo link to the X post
 - [ ] Add the repo link to the X post
+- [ ] Use the live app link: https://chenfangc.github.io/zombie-money/
+- [ ] Use the repo link: https://github.com/CHENFANGC/zombie-money
 
 ## Deadline notes
 
