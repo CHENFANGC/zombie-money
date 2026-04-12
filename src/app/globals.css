@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+:root {
+  --app-bg: #050816;
+  --text-primary: #f7fbff;
+  --text-muted: rgba(236, 242, 255, 0.7);
+}
+
+@theme inline {
+  --color-background: var(--app-bg);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-manrope);
+  --font-mono: var(--font-plex-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background:
+    radial-gradient(circle at top, rgba(107, 255, 212, 0.15), transparent 28%),
+    radial-gradient(circle at bottom, rgba(98, 163, 255, 0.12), transparent 34%),
+    linear-gradient(180deg, #08111f 0%, #050816 100%);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text-primary);
+  font-family: var(--font-manrope), sans-serif;
+}
+
+button,
+a {
+  cursor: pointer;
+}
+
+.app-chrome {
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(124, 255, 223, 0.11), transparent 28%),
+    radial-gradient(circle at 100% 100%, rgba(116, 160, 255, 0.12), transparent 36%);
+}
+
+.app-chrome::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 56px 56px;
+  mask-image: radial-gradient(circle at center, black 42%, transparent 85%);
+}
+
+.mobile-shell {
+  position: relative;
+  display: flex;
+  min-height: 780px;
+  width: min(100%, 420px);
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 2.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(11, 18, 34, 0.96), rgba(6, 8, 18, 0.98)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+  padding: 1.4rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 30px 120px rgba(2, 7, 18, 0.65);
+}
+
+.mobile-shell__glow {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(36px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.mobile-shell__glow--top {
+  left: -40px;
+  top: -30px;
+  height: 180px;
+  width: 180px;
+  background: rgba(109, 255, 214, 0.12);
+}
+
+.mobile-shell__glow--bottom {
+  bottom: -30px;
+  right: -20px;
+  height: 220px;
+  width: 220px;
+  background: rgba(116, 160, 255, 0.12);
+}
