@@ -4,6 +4,7 @@ Zombie Money is a mobile-first DeFi UX prototype for the LI.FI DeFi Mullet Hacka
 
 Live app: [https://chenfangc.github.io/zombie-money/](https://chenfangc.github.io/zombie-money/)
 Repo: [https://github.com/CHENFANGC/zombie-money](https://github.com/CHENFANGC/zombie-money)
+Demo video: [./demo-assets/final/zombie-money-demo.mp4](./demo-assets/final/zombie-money-demo.mp4)
 
 Instead of opening with APY tables, vault lists, or bridge jargon, it starts with a simpler truth:
 
