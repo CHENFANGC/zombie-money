@@ -1,2 +1,2 @@
-:HL["/zombie-money/_next/static/chunks/0.q07kmajrrre.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"25JBUZxAIxsdzXangeRjK"}
+:HL["/zombie-money/_next/static/chunks/0cqde6kvus~9q.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"rzdVU90uO9sYrZmLybiNa"}
