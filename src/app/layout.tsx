@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Manrope } from "next/font/google";
+import { AppProviders } from "@/components/AppProviders";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -29,7 +30,9 @@ export default function RootLayout({
       className={`${manrope.variable} ${plexMono.variable} h-full bg-[var(--app-bg)] text-[var(--text-primary)] antialiased`}
     >
       <body className="min-h-full">
-        <div className="app-chrome">{children}</div>
+        <AppProviders>
+          <div className="app-chrome">{children}</div>
+        </AppProviders>
       </body>
     </html>
   );
