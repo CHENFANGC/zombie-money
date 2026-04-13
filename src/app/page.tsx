@@ -202,12 +202,16 @@ export default function Home() {
               </div>
 
               <div className="mt-auto pt-6">
-                <CTAButton
-                  disabled={balance.status === "loading" || balance.status === "empty"}
-                  onClick={handleWakeUp}
-                >
-                  {getHomeCtaLabel(balance.status)}
-                </CTAButton>
+                {balance.status === "disconnected" ? (
+                  <WalletConnectPill label="Connect wallet" size="full" />
+                ) : (
+                  <CTAButton
+                    disabled={balance.status === "loading" || balance.status === "empty"}
+                    onClick={handleWakeUp}
+                  >
+                    {getHomeCtaLabel(balance.status)}
+                  </CTAButton>
+                )}
                 <p className="mt-4 text-center text-sm leading-6 text-white/50">
                   No dashboards. No strategy maze. Just one simple way to put idle funds to work.
                 </p>
