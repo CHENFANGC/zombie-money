@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { WalletConnectPill } from "@/components/WalletConnectPill";
 import { BalanceCard } from "@/components/BalanceCard";
 import { CTAButton } from "@/components/CTAButton";
@@ -13,7 +14,6 @@ import { formatUsd } from "@/lib/format";
 import { FALLBACK_VAULTS } from "@/lib/mockData";
 import { rankRoutes } from "@/lib/ranking";
 import { useSleepingUsdcBalance } from "@/lib/useSleepingUsdcBalance";
-import type { RecommendedRoute } from "@/types/earn";
 import type { WalletBalanceStatus } from "@/types/wallet";
 
 type FlowState = "home" | "recommendation" | "success";
@@ -79,89 +79,40 @@ export default function Home() {
   const balance = useSleepingUsdcBalance();
   const detectedAmount = balance.status === "ready" ? balance.total : 0;
   const [flow, setFlow] = useState<FlowState>("home");
-  const [routeState, setRouteState] = useState<RouteState>("loading");
-  const [routes, setRoutes] = useState<RecommendedRoute[]>([]);
   const [routeIndex, setRouteIndex] = useState(0);
   const [isActivating, setIsActivating] = useState(false);
   const [progressIndex, setProgressIndex] = useState(0);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadRoutes() {
+  const routesQuery = useQuery({
+    queryKey: ["earned-routes", detectedAmount],
+    queryFn: async () => {
       try {
         const vaults = await fetchEarnVaults();
-        const ranked = rankRoutes(vaults, detectedAmount);
-
-        if (cancelled) {
-          return;
-        }
-
-        if (ranked.length === 0) {
-          setRouteState("empty");
-          setRoutes([]);
-          return;
-        }
-
-        setRoutes(ranked);
-        setRouteIndex(0);
-        setRouteState(isFallbackRoute(ranked[0].slug) ? "fallback" : "ready");
+        return rankRoutes(vaults, detectedAmount);
       } catch {
-        if (cancelled) {
-          return;
-        }
-
-        const rankedFallback = rankRoutes(FALLBACK_VAULTS, detectedAmount);
-        setRoutes(rankedFallback);
-        setRouteIndex(0);
-        setRouteState("fallback");
+        return rankRoutes(FALLBACK_VAULTS, detectedAmount);
       }
-    }
+    },
+    enabled: balance.status === "ready" && detectedAmount > 0,
+    refetchOnWindowFocus: false,
+  });
 
-    if (balance.status !== "ready") {
-      setRoutes([]);
-      setRouteIndex(0);
-      setRouteState(balance.status === "error" ? "empty" : "loading");
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    void loadRoutes();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [balance.status, detectedAmount]);
-
-  useEffect(() => {
-    if (flow !== "home" && !balance.hasReadyBalance) {
-      setFlow("home");
-    }
-  }, [balance.hasReadyBalance, flow]);
-
-  useEffect(() => {
-    if (!isActivating) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      if (progressIndex >= ACTIVATION_STEPS.length - 1) {
-        setIsActivating(false);
-        setProgressIndex(0);
-        setFlow("success");
-        return;
-      }
-
-      setProgressIndex((current) => current + 1);
-    }, 850);
-
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, [isActivating, progressIndex]);
-
-  const activeRoute = routes[routeIndex] ?? null;
+  const routes = routesQuery.data ?? [];
+  const safeRouteIndex = routeIndex < routes.length ? routeIndex : 0;
+  const activeRoute = routes[safeRouteIndex] ?? null;
+  const routeState: RouteState =
+    balance.status !== "ready"
+      ? balance.status === "error"
+        ? "empty"
+        : "loading"
+      : routesQuery.isPending
+        ? "loading"
+        : routes.length === 0
+          ? "empty"
+          : activeRoute && isFallbackRoute(activeRoute.slug)
+            ? "fallback"
+            : "ready";
+  const currentFlow = flow !== "home" && !balance.hasReadyBalance ? "home" : flow;
 
   function handleWakeUp() {
     if (balance.status === "error") {
@@ -187,6 +138,19 @@ export default function Home() {
   function handleReviveFunds() {
     setIsActivating(true);
     setProgressIndex(0);
+
+    ACTIVATION_STEPS.forEach((_, index) => {
+      window.setTimeout(() => {
+        if (index === ACTIVATION_STEPS.length - 1) {
+          setIsActivating(false);
+          setProgressIndex(0);
+          setFlow("success");
+          return;
+        }
+
+        setProgressIndex(index + 1);
+      }, 850 * (index + 1));
+    });
   }
 
   function handleWakeMoreFunds() {
@@ -201,7 +165,7 @@ export default function Home() {
         <div className="mobile-shell__glow mobile-shell__glow--bottom" />
 
         <AnimatePresence mode="wait">
-          {flow === "home" ? (
+          {currentFlow === "home" ? (
             <motion.section
               animate={{ opacity: 1, y: 0 }}
               className="relative z-10 flex flex-1 flex-col"
@@ -266,7 +230,7 @@ export default function Home() {
             </motion.section>
           ) : null}
 
-          {flow === "recommendation" ? (
+          {currentFlow === "recommendation" ? (
             <motion.section
               animate={{ opacity: 1, y: 0 }}
               className="relative z-10 flex flex-1 flex-col"
@@ -399,7 +363,7 @@ export default function Home() {
             </motion.section>
           ) : null}
 
-          {flow === "success" && activeRoute ? (
+          {currentFlow === "success" && activeRoute ? (
             <motion.section
               animate={{ opacity: 1, y: 0 }}
               className="relative z-10 flex flex-1 flex-col"

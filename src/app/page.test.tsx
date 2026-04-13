@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vitest";
@@ -24,8 +25,24 @@ vi.mock("@/components/WalletConnectPill", () => ({
 
 import Home from "./page";
 
+function renderHome() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <Home />
+    </QueryClientProvider>,
+  );
+}
+
 test("shows connect messaging when the wallet is disconnected", () => {
-  render(<Home />);
+  renderHome();
 
   expect(screen.getByText(/connect your wallet to detect sleeping usdc/i)).toBeInTheDocument();
 });
@@ -48,7 +65,7 @@ test("moves to recommendation when a real balance is ready", async () => {
     refresh: vi.fn(),
   });
 
-  render(<Home />);
+  renderHome();
 
   await user.click(screen.getByRole("button", { name: /wake it up/i }));
 

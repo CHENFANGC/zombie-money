@@ -32,12 +32,13 @@ Zombie Money flips that:
 Real:
 
 - LI.FI Earn data from `https://earn.li.fi/v1/earn/vaults`
+- Wallet connection with `wagmi` + `RainbowKit`
+- Real USDC balance detection on Ethereum, Base, and Arbitrum
 - Vault normalization and ranking logic
 - Stablecoin-focused recommendation selection
 
 Mocked:
 
-- Wallet balance detection
 - Deposit execution
 - Activated position persistence
 
@@ -49,16 +50,30 @@ The app is honest about that tradeoff: it is a polished UX prototype grounded by
 - TypeScript
 - Tailwind CSS 4
 - Framer Motion
+- wagmi
+- RainbowKit
+- viem
 - Vitest + Testing Library
 
 ## Local development
 
 ```bash
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+## Wallet setup
+
+Set a WalletConnect Cloud project ID in `.env.local`:
+
+```bash
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+```
+
+Browser-injected wallets can still be used for local demos, but a real WalletConnect Cloud project ID is recommended for reliable wallet selection.
 
 ## Scripts
 
@@ -77,18 +92,23 @@ src/
     layout.tsx
     page.tsx
   components/
+    AppProviders.tsx
     BalanceCard.tsx
     CTAButton.tsx
     EarningsCard.tsx
     RecommendationCard.tsx
     SleepingVisual.tsx
+    WalletConnectPill.tsx
   lib/
     format.ts
     lifiEarn.ts
     mockData.ts
     ranking.ts
+    usdcBalance.ts
+    useSleepingUsdcBalance.ts
   types/
     earn.ts
+    wallet.ts
 docs/
   project-description.md
   x-post-draft.md
