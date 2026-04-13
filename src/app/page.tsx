@@ -2,16 +2,19 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { WalletConnectPill } from "@/components/WalletConnectPill";
 import { BalanceCard } from "@/components/BalanceCard";
 import { CTAButton } from "@/components/CTAButton";
 import { EarningsCard } from "@/components/EarningsCard";
 import { RecommendationCard } from "@/components/RecommendationCard";
 import { SleepingVisual } from "@/components/SleepingVisual";
 import { fetchEarnVaults } from "@/lib/lifiEarn";
-import { FALLBACK_VAULTS, MOCK_IDLE_BALANCE } from "@/lib/mockData";
-import { rankRoutes } from "@/lib/ranking";
 import { formatUsd } from "@/lib/format";
+import { FALLBACK_VAULTS } from "@/lib/mockData";
+import { rankRoutes } from "@/lib/ranking";
+import { useSleepingUsdcBalance } from "@/lib/useSleepingUsdcBalance";
 import type { RecommendedRoute } from "@/types/earn";
+import type { WalletBalanceStatus } from "@/types/wallet";
 
 type FlowState = "home" | "recommendation" | "success";
 type RouteState = "loading" | "ready" | "empty" | "fallback";
@@ -27,7 +30,54 @@ function isFallbackRoute(slug: string) {
   return FALLBACK_VAULTS.some((vault) => vault.slug === slug);
 }
 
+function getBalanceHelper(status: WalletBalanceStatus) {
+  switch (status) {
+    case "disconnected":
+      return "Connect your wallet to detect sleeping USDC";
+    case "loading":
+      return "Scanning Ethereum, Base, and Arbitrum for USDC";
+    case "empty":
+      return "No sleeping USDC detected yet";
+    case "error":
+      return "We couldn't read your wallet balance yet";
+    case "ready":
+      return "Detected as idle USDC across your wallet";
+  }
+}
+
+function getBalanceLabel(status: WalletBalanceStatus) {
+  switch (status) {
+    case "disconnected":
+      return "Disconnected";
+    case "loading":
+      return "Scanning";
+    case "empty":
+      return "Wide awake";
+    case "error":
+      return "Unreadable";
+    case "ready":
+      return "Light sleep";
+  }
+}
+
+function getHomeCtaLabel(status: WalletBalanceStatus) {
+  switch (status) {
+    case "disconnected":
+      return "Connect wallet";
+    case "loading":
+      return "Checking wallet";
+    case "empty":
+      return "No sleeping USDC";
+    case "error":
+      return "Try again";
+    case "ready":
+      return "Wake it up";
+  }
+}
+
 export default function Home() {
+  const balance = useSleepingUsdcBalance();
+  const detectedAmount = balance.status === "ready" ? balance.total : 0;
   const [flow, setFlow] = useState<FlowState>("home");
   const [routeState, setRouteState] = useState<RouteState>("loading");
   const [routes, setRoutes] = useState<RecommendedRoute[]>([]);
@@ -41,7 +91,7 @@ export default function Home() {
     async function loadRoutes() {
       try {
         const vaults = await fetchEarnVaults();
-        const ranked = rankRoutes(vaults, MOCK_IDLE_BALANCE);
+        const ranked = rankRoutes(vaults, detectedAmount);
 
         if (cancelled) {
           return;
@@ -54,16 +104,27 @@ export default function Home() {
         }
 
         setRoutes(ranked);
+        setRouteIndex(0);
         setRouteState(isFallbackRoute(ranked[0].slug) ? "fallback" : "ready");
       } catch {
         if (cancelled) {
           return;
         }
 
-        const rankedFallback = rankRoutes(FALLBACK_VAULTS, MOCK_IDLE_BALANCE);
+        const rankedFallback = rankRoutes(FALLBACK_VAULTS, detectedAmount);
         setRoutes(rankedFallback);
+        setRouteIndex(0);
         setRouteState("fallback");
       }
+    }
+
+    if (balance.status !== "ready") {
+      setRoutes([]);
+      setRouteIndex(0);
+      setRouteState(balance.status === "error" ? "empty" : "loading");
+      return () => {
+        cancelled = true;
+      };
     }
 
     void loadRoutes();
@@ -71,7 +132,13 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [balance.status, detectedAmount]);
+
+  useEffect(() => {
+    if (flow !== "home" && !balance.hasReadyBalance) {
+      setFlow("home");
+    }
+  }, [balance.hasReadyBalance, flow]);
 
   useEffect(() => {
     if (!isActivating) {
@@ -97,6 +164,15 @@ export default function Home() {
   const activeRoute = routes[routeIndex] ?? null;
 
   function handleWakeUp() {
+    if (balance.status === "error") {
+      void balance.refresh();
+      return;
+    }
+
+    if (!balance.hasReadyBalance) {
+      return;
+    }
+
     setFlow("recommendation");
   }
 
@@ -135,12 +211,17 @@ export default function Home() {
               transition={{ duration: 0.35, ease: "easeOut" }}
             >
               <header>
-                <p className="text-[11px] uppercase tracking-[0.24em] text-white/34">
-                  Premium stablecoin wake-up
-                </p>
-                <h1 className="mt-3 text-[2.55rem] leading-[0.96] font-semibold tracking-[-0.08em] text-white">
-                  Zombie Money
-                </h1>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-white/34">
+                      Premium stablecoin wake-up
+                    </p>
+                    <h1 className="mt-3 text-[2.55rem] leading-[0.96] font-semibold tracking-[-0.08em] text-white">
+                      Zombie Money
+                    </h1>
+                  </div>
+                  <WalletConnectPill />
+                </div>
                 <p className="mt-3 max-w-xs text-[15px] leading-6 text-white/62">
                   Idle stablecoins don&apos;t have to stay idle.
                 </p>
@@ -148,25 +229,38 @@ export default function Home() {
 
               <div className="mt-6">
                 <BalanceCard
-                  amount={MOCK_IDLE_BALANCE}
-                  helper="Detected as idle stablecoins in your wallet"
-                  status="Light sleep"
+                  amount={detectedAmount}
+                  helper={getBalanceHelper(balance.status)}
+                  status={getBalanceLabel(balance.status)}
                 >
                   <SleepingVisual />
                 </BalanceCard>
               </div>
 
               <div className="mt-auto pt-6">
-                <CTAButton onClick={handleWakeUp}>Wake it up</CTAButton>
+                <CTAButton
+                  disabled={balance.status === "loading" || balance.status === "empty"}
+                  onClick={handleWakeUp}
+                >
+                  {getHomeCtaLabel(balance.status)}
+                </CTAButton>
                 <p className="mt-4 text-center text-sm leading-6 text-white/50">
                   No dashboards. No strategy maze. Just one simple way to put idle funds to work.
                 </p>
                 <p className="mt-5 text-center text-[11px] uppercase tracking-[0.18em] text-white/30">
-                  {routeState === "loading"
-                    ? "Scanning live LI.FI routes"
-                    : routeState === "fallback"
-                      ? "Using a calm fallback route"
-                      : "Ready to revive"}
+                  {balance.status === "disconnected"
+                    ? "Connect to start the scan"
+                    : balance.status === "loading"
+                      ? "Reading your wallet"
+                      : balance.status === "empty"
+                        ? "No idle USDC found"
+                        : balance.status === "error"
+                          ? "Tap to try again"
+                          : routeState === "fallback"
+                            ? "Using a calm fallback route"
+                            : routeState === "loading"
+                              ? "Scanning live LI.FI routes"
+                              : "Ready to revive"}
                 </p>
               </div>
             </motion.section>
@@ -331,7 +425,7 @@ export default function Home() {
                   <div className="mx-auto h-28 w-28 rounded-full bg-[radial-gradient(circle,rgba(255,228,140,0.88)_0%,rgba(118,255,212,0.48)_40%,rgba(118,255,212,0)_75%)] shadow-[0_0_40px_rgba(255,218,121,0.16)]" />
                   <p className="mt-5 text-center text-sm text-white/52">Amount activated</p>
                   <p className="mt-2 text-center text-[2.5rem] leading-none font-semibold tracking-[-0.06em] text-white">
-                    {formatUsd(MOCK_IDLE_BALANCE)}
+                    {formatUsd(detectedAmount)}
                   </p>
                   <div className="mt-5 grid grid-cols-3 gap-3">
                     {["Active", "Earning", "Tracked"].map((tag) => (
