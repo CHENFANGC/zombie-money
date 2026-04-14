@@ -12,6 +12,7 @@ Zombie Money
 - X post draft: `docs/x-post-draft.md`
 - Demo script: `docs/demo-script.md`
 - Project description: `docs/project-description.md`
+- API feedback: `docs/api-feedback.md`
 
 ## Track
 
@@ -23,11 +24,13 @@ Zombie Money is a mobile-first LI.FI Earn prototype that turns idle stablecoins 
 
 ## What is already done
 
-- App built and pushed
-- Public demo link live
+- App built and verified locally
+- Public demo link prepared
 - Repo homepage configured
 - README completed
-- Submission copy drafted
+- X submission copy drafted
+- Project description drafted
+- API feedback drafted
 - Demo script written
 - Checklist prepared
 
@@ -39,7 +42,13 @@ These require your personal account access and cannot be completed from this wor
    April 15, 2026, 09:00 AM to 12:00 PM UTC+8
 2. Fill out the submission form:
    https://forms.gle/1PCvD9BymH1EyRmV8
-3. Record and upload the demo video if you want a stronger submission
+3. Paste in:
+   - live app URL
+   - GitHub repo URL
+   - X post URL
+   - project description
+   - API feedback
+4. Upload or link the demo video if you want a stronger submission
 
 ## Fastest wake-up flow tomorrow
 

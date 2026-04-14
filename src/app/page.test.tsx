@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vitest";
+import { FALLBACK_VAULTS } from "@/lib/mockData";
 
 vi.mock("@/lib/lifiEarn", () => ({
   fetchEarnVaults: vi.fn().mockResolvedValue([]),
@@ -50,6 +51,7 @@ test("shows connect messaging when the wallet is disconnected", () => {
 test("moves to recommendation when a real balance is ready", async () => {
   const user = userEvent.setup();
   const { useSleepingUsdcBalance } = await import("@/lib/useSleepingUsdcBalance");
+  const { fetchEarnVaults } = await import("@/lib/lifiEarn");
 
   vi.mocked(useSleepingUsdcBalance).mockReturnValue({
     status: "ready",
@@ -64,6 +66,7 @@ test("moves to recommendation when a real balance is ready", async () => {
     hasReadyBalance: true,
     refresh: vi.fn(),
   });
+  vi.mocked(fetchEarnVaults).mockResolvedValue(FALLBACK_VAULTS);
 
   renderHome();
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useDisconnect } from "wagmi";
 
 type WalletConnectPillProps = {
   label?: string;
@@ -12,6 +13,9 @@ export function WalletConnectPill({
   label = "Connect wallet",
   size = "pill",
 }: WalletConnectPillProps) {
+  const { disconnect } = useDisconnect();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const mounted = useSyncExternalStore(
     () => () => undefined,
     () => true,
@@ -30,6 +34,24 @@ export function WalletConnectPill({
       ? "border border-emerald-300/14 bg-emerald-300/10 text-white/84 hover:bg-emerald-300/14"
       : "border border-emerald-300/14 bg-emerald-300/10 text-white/84 hover:bg-emerald-300/14";
 
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+
+    if (!isMenuOpen) {
+      return;
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+    };
+  }, [isMenuOpen]);
+
   if (!mounted) {
     return (
       <button
@@ -45,8 +67,9 @@ export function WalletConnectPill({
   }
 
   return (
-    <ConnectButton.Custom>
-      {({ account, chain, mounted: rainbowMounted, openAccountModal, openConnectModal, openChainModal }) => {
+    <div className={size === "pill" ? "relative" : "w-full"} ref={containerRef}>
+      <ConnectButton.Custom>
+      {({ account, chain, mounted: rainbowMounted, openConnectModal, openChainModal }) => {
         const connected = rainbowMounted && account && chain;
 
         if (!connected) {
@@ -64,17 +87,57 @@ export function WalletConnectPill({
         }
 
         return (
-          <button
-            className={`${baseClassName} ${connectedClassName} ${
-              size === "pill" ? "uppercase" : ""
-            }`}
-            onClick={chain.unsupported ? openChainModal : openAccountModal}
-            type="button"
-          >
-            {account.displayName}
-          </button>
+          <>
+            <button
+              className={`${baseClassName} ${connectedClassName} ${
+                size === "pill" ? "uppercase" : ""
+              }`}
+              onClick={chain.unsupported ? openChainModal : () => setIsMenuOpen((open) => !open)}
+              type="button"
+            >
+              {account.displayName}
+            </button>
+
+            {size === "pill" && isMenuOpen ? (
+              <div className="absolute right-0 z-30 mt-3 w-[min(84vw,20rem)] rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(24,31,48,0.98),rgba(11,14,25,0.98))] p-4 shadow-[0_24px_80px_rgba(2,7,18,0.58)] backdrop-blur-xl">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-white/40">Connected wallet</p>
+                <p className="mt-3 text-base font-semibold tracking-[-0.03em] text-white">
+                  {account.displayName}
+                </p>
+                {"address" in account ? (
+                  <p className="mt-1 text-xs text-white/46">{account.address}</p>
+                ) : null}
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <button
+                    className="rounded-[1.1rem] border border-white/10 bg-white/6 px-3 py-3 text-sm text-white/78 transition hover:bg-white/10"
+                    onClick={async () => {
+                      if ("address" in account && navigator?.clipboard) {
+                        await navigator.clipboard.writeText(account.address);
+                      }
+
+                      setIsMenuOpen(false);
+                    }}
+                    type="button"
+                  >
+                    Copy address
+                  </button>
+                  <button
+                    className="rounded-[1.1rem] border border-emerald-300/14 bg-emerald-300/10 px-3 py-3 text-sm text-white/84 transition hover:bg-emerald-300/14"
+                    onClick={() => {
+                      disconnect();
+                      setIsMenuOpen(false);
+                    }}
+                    type="button"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </>
         );
       }}
-    </ConnectButton.Custom>
+      </ConnectButton.Custom>
+    </div>
   );
 }

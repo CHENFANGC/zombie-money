@@ -1,24 +1,27 @@
 # X Post Draft
 
-Zombie Money is live.
+I just built Zombie Money with LI.FI Earn.
 
 Most wallets just store stablecoins.
-Zombie Money asks a simpler question:
+Zombie Money starts with a simpler truth:
 
-What if your money is sleeping?
+Your money is sleeping. Wake it up.
 
-This is a mobile-first LI.FI Earn UX prototype that detects idle stablecoins, finds one calm route, and lets you “wake up” funds in a flow that feels more like a consumer fintech app than a DeFi dashboard.
-
-Built with:
-- live LI.FI Earn vault data
-- Next.js + TypeScript + Tailwind + Framer Motion
-- a narrative 3-screen UX designed for the DeFi UX Challenge
+It is a mobile-first UX prototype that:
+- connects a real wallet
+- detects real USDC across Ethereum, Base, and Arbitrum
+- uses live LI.FI Earn vault data to recommend one calm route
+- turns DeFi yield into a 3-screen consumer flow instead of a dashboard
 
 Demo:
 https://chenfangc.github.io/zombie-money/
 
-App / repo:
-https://chenfangc.github.io/zombie-money/
+Code:
 https://github.com/CHENFANGC/zombie-money
 
-#DeFiMullet #LIFI #DeFiUX #BuildOnLI.FI
+Track: DeFi UX Challenge
+
+Built with @lifiprotocol LI.FI Earn
+cc @brucexu_eth
+
+#DeFiMullet #LIFI #DeFiUX #BuildOnLIFI

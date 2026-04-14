@@ -17,7 +17,8 @@ Zombie Money starts with a simpler message:
 
 ## What it does
 
-- Detects a mocked idle stablecoin balance
+- Connects a real wallet
+- Detects real USDC balances across Ethereum, Base, and Arbitrum
 - Pulls real LI.FI Earn vault data
 - Ranks stablecoin-friendly opportunities with trust-focused filtering
 - Recommends one simple wake-up route
@@ -33,7 +34,8 @@ Instead of overwhelming the user with options, it gives them one confident recom
 
 - `earn.li.fi` is used as the source of truth for vault discovery
 - Recommendation logic is built on normalized LI.FI Earn responses
-- Composer execution is intentionally not fully integrated in this sprint, to preserve polish and demo reliability in one night
+- Wallet balance detection is real, while deposit execution is intentionally still mocked to preserve polish and demo reliability in one night
+- Detailed API usage feedback is in `docs/api-feedback.md`
 
 ## Track
 

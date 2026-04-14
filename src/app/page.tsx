@@ -7,6 +7,7 @@ import { WalletConnectPill } from "@/components/WalletConnectPill";
 import { BalanceCard } from "@/components/BalanceCard";
 import { CTAButton } from "@/components/CTAButton";
 import { EarningsCard } from "@/components/EarningsCard";
+import { PositionDetailsSheet } from "@/components/PositionDetailsSheet";
 import { RecommendationCard } from "@/components/RecommendationCard";
 import { SleepingVisual } from "@/components/SleepingVisual";
 import { fetchEarnVaults } from "@/lib/lifiEarn";
@@ -81,6 +82,7 @@ export default function Home() {
   const [flow, setFlow] = useState<FlowState>("home");
   const [routeIndex, setRouteIndex] = useState(0);
   const [isActivating, setIsActivating] = useState(false);
+  const [isPositionOpen, setIsPositionOpen] = useState(false);
   const [progressIndex, setProgressIndex] = useState(0);
 
   const routesQuery = useQuery({
@@ -154,6 +156,7 @@ export default function Home() {
   }
 
   function handleWakeMoreFunds() {
+    setIsPositionOpen(false);
     setRouteIndex(0);
     setFlow("home");
   }
@@ -416,8 +419,17 @@ export default function Home() {
 
               <div className="mt-5 space-y-3">
                 <CTAButton onClick={handleWakeMoreFunds}>Wake more funds</CTAButton>
-                <CTAButton variant="secondary">View my position</CTAButton>
+                <CTAButton onClick={() => setIsPositionOpen(true)} variant="secondary">
+                  View my position
+                </CTAButton>
               </div>
+
+              <PositionDetailsSheet
+                amount={detectedAmount}
+                onClose={() => setIsPositionOpen(false)}
+                open={isPositionOpen}
+                route={activeRoute}
+              />
             </motion.section>
           ) : null}
         </AnimatePresence>
